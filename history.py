@@ -1,6 +1,6 @@
 import json
 import sys
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Any
 from collections import OrderedDict
 from datetime import datetime
 from pydantic.v1 import BaseModel # v2 throws warnings
@@ -15,7 +15,7 @@ class Author(BaseModel):
 
 
 class ContentPartMetadata(BaseModel):
-    dalle: dict
+    dalle: Optional[dict]
 
 
 class ContentPart(BaseModel):
@@ -24,7 +24,7 @@ class ContentPart(BaseModel):
     size_bytes: Optional[int]
     width: Optional[int]
     height: Optional[int]
-    fovea: Optional[None]
+    fovea: Optional[Any]
     metadata: Optional[ContentPartMetadata]
 
 
