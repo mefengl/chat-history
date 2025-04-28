@@ -107,7 +107,7 @@ def get_activity():
     for conversation in conversations:
         for message in conversation.messages:
             day = message.created.date()
-            activity_by_day[day] += 1
+            activity_by_day[day] += 1 if message.author.role == 'user' else 0
     
     activity_by_day = {str(k): v for k, v in sorted(dict(activity_by_day).items())}
 
