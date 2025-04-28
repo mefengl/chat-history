@@ -1,22 +1,19 @@
-[tool.poetry]
+[project]
+authors = [
+    {name = "Dima Kuchin", email = "dima@mirable.io"},
+]
+requires-python = "<4.0,>=3.10"
+dependencies = [
+    "fastapi<1.0.0,>=0.103.1",
+    "uvicorn<1.0.0,>=0.23.2",
+    "markdown<4.0.0,>=3.4.4",
+    "toml<1.0.0,>=0.10.2",
+    "openai[datalib]<1.0.0,>=0.28.0",
+    "faiss-cpu<2.0.0,>=1.7.4",
+    "tqdm<5.0.0,>=4.66.1",
+    "tiktoken<1.0.0,>=0.5.1",
+]
 name = "chat-history"
 version = "0.1.0"
 description = ""
-authors = ["Dima Kuchin <dima@mirable.io>"]
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.10"
-fastapi = "^0.103.1"
-uvicorn = "^0.23.2"
-markdown = "^3.4.4"
-toml = "^0.10.2"
-openai = {extras = ["datalib"], version = "^0.28.0"}
-faiss-cpu = "^1.7.4"
-tqdm = "^4.66.1"
-tiktoken = "^0.5.1"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
