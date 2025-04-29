@@ -20,7 +20,12 @@
 </head>
 <body>
 
-<h1>Message count per hour (last 24 h)</h1>
+<div class="p-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold">Message count per hour (last 24 h)</h1>
+  <a href="/" class="text-blue-600 hover:underline flex items-center">
+      <span class="material-symbols-outlined mr-1" style="font-size: 18px;">arrow_back</span> Back to Overview
+  </a>
+</div>
 
 <table id="hourly" class="display" style="width:100%">
   <thead><tr><th>Hour</th><th>Messages</th></tr></thead>
