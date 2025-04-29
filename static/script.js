@@ -293,3 +293,130 @@ window.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById("groupFilter").addEventListener("change", populateConversationsList);
     document.getElementById("textFilter").addEventListener("input", populateConversationsList);
 });
+
+// --- ZIP Upload Handling ---
+
+const zipInput = document.getElementById('zipInput');
+const uploadStatus = document.getElementById('uploadStatus');
+const body = document.body;
+const dropOverlay = document.getElementById('dropOverlay'); // Get the overlay element
+
+async function handleFileUpload(file) {
+    if (!file || !file.type.includes('zip')) {
+        setStatus('请选择一个 .zip 文件', 'error');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('file', file);
+
+    setStatus('正在上传...', 'loading');
+
+    try {
+        const res = await fetch('/api/upload_zip', { method: 'POST', body: fd });
+        const result = await res.json(); // Read response body once
+
+        if (!res.ok) {
+             // Use detail from JSON response if available, otherwise fallback to text
+            const errorDetail = result.detail || await res.text(); 
+            throw new Error(errorDetail);
+        }
+        
+        setStatus('上传成功，正在刷新…', 'success');
+        // Use detail from success response
+        console.log('Server response:', result);
+        
+        setTimeout(() => location.reload(), 1000); // Give time to read status
+    } catch (err) {
+        setStatus(`上传失败: ${err.message}`, 'error');
+        console.error('Upload error:', err);
+    } finally {
+         // Clear the file input value so the same file can be selected again
+        if (zipInput) {
+           zipInput.value = ''; 
+        }
+    }
+}
+
+function setStatus(message, type = 'info') {
+    if (!uploadStatus) return;
+    uploadStatus.textContent = message;
+    uploadStatus.classList.remove('text-green-400', 'text-red-400', 'text-blue-400', 'text-gray-400');
+    switch (type) {
+        case 'success':
+            uploadStatus.classList.add('text-green-400');
+            break;
+        case 'error':
+            uploadStatus.classList.add('text-red-400');
+            break;
+        case 'loading':
+             uploadStatus.classList.add('text-blue-400');
+            break;
+        default:
+            uploadStatus.classList.add('text-gray-400');
+    }
+    // Clear status after a few seconds unless it's loading
+    if (type !== 'loading') {
+        setTimeout(() => {
+            if (uploadStatus.textContent === message) { // Avoid clearing newer messages
+                 setStatus('');
+            }
+        }, 5000);
+    }
+}
+
+// Listener for file input change
+if (zipInput) {
+    zipInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        handleFileUpload(file);
+    });
+}
+
+// Listeners for drag and drop
+body.addEventListener('dragover', (e) => {
+    e.preventDefault(); // Prevent default behavior (opening file)
+    e.stopPropagation();
+    // Show the overlay instead of modifying body class or status text
+    if (dropOverlay) {
+        dropOverlay.classList.remove('hidden');
+    }
+});
+
+body.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Hide the overlay
+    // Important: Check if the leave event is heading outside the window
+    // This prevents flickering when dragging over child elements
+    if (e.relatedTarget === null || e.relatedTarget === document.documentElement) {
+        if (dropOverlay) {
+            dropOverlay.classList.add('hidden');
+        }
+    }
+});
+
+body.addEventListener('drop', (e) => {
+    e.preventDefault(); // Prevent default behavior (opening file)
+    e.stopPropagation();
+    // Hide the overlay immediately on drop
+    if (dropOverlay) {
+        dropOverlay.classList.add('hidden');
+    }
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        handleFileUpload(file);
+    } else {
+        setStatus('无法获取拖拽的文件', 'error');
+    }
+});
+
+// Add some basic CSS for the dragging state if you want
+// You might add this to your style.css
+/*
+body.dragging {
+  outline: 2px dashed #90cdf4; 
+  outline-offset: -10px;
+}
+*/

@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta
 
 
+def floor_hour(dt: datetime) -> datetime:      # round down to hour
+    return dt.replace(minute=0, second=0, microsecond=0)
+
+
 def time_group(dt):
     now = datetime.now()
     today = datetime(now.year, now.month, now.day)

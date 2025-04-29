@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Last 24 h Chat Activity</title>
+
+  <!-- DataTables 2.2.1  CSS/JS -->
+  <link rel="stylesheet"
+        href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> <!-- DataTables requires jQuery -->
+  <script src="https://cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
+
+  <!-- Chart.js 4.4.1 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style>
+    body{font-family:system-ui,Roboto,Helvetica,Arial;}
+    #hourChart{max-width:960px;height:320px;margin:40px auto;}
+  </style>
+</head>
+<body>
+
+<h1>Message count per hour (last 24 h)</h1>
+
+<table id="hourly" class="display" style="width:100%">
+  <thead><tr><th>Hour</th><th>Messages</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<canvas id="hourChart"></canvas>
+
+<script>
+// Fetch data, fill table, draw chart
+(async () => {
+  const res  = await fetch('/api/activity/last24h?role=user'); // Changed this line
+  const data = await res.json();                          // [{hour,count}, …]
+
+  // -------- table ----------
+  const tbody = document.querySelector('#hourly tbody');
+  data.forEach(({hour,count}) => {
+    tbody.insertAdjacentHTML('beforeend',
+      `<tr><td>${hour}</td><td>${count}</td></tr>`);
+  });
+  new DataTable('#hourly');     // DataTables magic
+
+  // ---- chart ----------
+  const ctx   = document.getElementById('hourChart');
+  const labels = data.map(d => d.hour.slice(11,16));      // "HH:MM"
+  const counts = data.map(d => d.count);
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label:'msgs', data:counts }]
+    },
+    options: {
+      scales:{y:{beginAtZero:true}},
+      plugins:{legend:{display:false}}
+    }
+  });
+})();
+</script>
+</body>
+</html>
